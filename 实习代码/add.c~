@@ -1,0 +1,162 @@
+//=========================================================================
+// 文件名：	add.c
+// 文件功能：测试addBlank函数的功能
+// 函数功能：在“cat>test<text”的命令行中以"<",">"">>"作为标
+//  		 志符号，给标志符号的前面加上空格,删除后面的空格
+// 语法格式：	char *addBlank(char cmd[40])
+// 参数：	cmd[40]: 从键盘键入的命令行（全局变量）
+// 返回值：	添加好空格后的命令行的首地址
+//=============================================================
+
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <stdbool.h>
+#include <sys/wait.h>
+
+#define MAX 100
+#define LEN 100
+
+char cmdbuf[LEN];
+
+
+char *addBlank(char cmd[40])
+{
+	char buf[40];
+	char temp[40];
+	char temp1[40];
+	char *p;
+	int t=0;
+	int j=0,i=0;
+
+	strcpy(buf,cmd);
+
+	if((p=strstr(buf,">>")) != NULL) 		//先判断有没有“>>”,因为">"包含于“>>”，为其前后加上空格
+	{
+		t=(p-buf)/sizeof(char);						//找到">>"在命令数组中的下标号
+		
+		for(i=0;i<t;i++)
+		{
+			strcpy((temp+i),(buf+i));
+		}
+		strcpy((temp+t)," ");
+		strcpy((temp+t+1),(buf+t));
+		strcpy((temp+t+2),(buf+t+1));
+		//strcpy((temp+t+3)," ");
+		for(i=t+3,j=t+2;j<sizeof(buf);i++,j++)
+		{
+			if(strstr(buf,">> ")!=NULL)
+				strcpy((temp+i),(buf+j+1));
+			else if(strstr(buf,">>")!=NULL)
+				strcpy((temp+i),(buf+j));
+		}
+
+		if((p=strstr(temp,"<")) != NULL)	//再判断命令行中是不是同时有“<”,有则给其前后加上空格
+		{
+			t=(p-temp)/sizeof(char);
+			
+			for(i=0;i<t;i++)
+			{
+				strcpy((temp1+i),(temp+i));
+			}
+			strcpy((temp1+t)," ");
+			strcpy((temp1+t+1),(temp+t));
+			//strcpy((temp1+t+2)," ");
+			for(i=t+2,j=t+1;j<sizeof(temp);i++,j++)
+			{
+				if(strstr(buf,"< ")!=NULL)
+					strcpy((temp1+i),(temp+j+1));
+				else if(strstr(buf,"<")!=NULL)
+					strcpy((temp1+i),(temp+j));
+			}
+			strcpy(cmd,temp1);
+		}
+		else
+		{
+			strcpy(cmd,temp);
+		}
+	}
+	else if((p = strstr(buf,">")) != NULL)
+	{
+		t=(p-buf)/sizeof(char);
+		for(i=0;i<t;i++)
+		{
+			strcpy((temp+i),(buf+i));
+		}
+		strcpy((temp+t)," ");
+		strcpy((temp+t+1),(buf+t));
+		//strcpy((temp+t+2)," ");
+
+		for(i=t+2,j=t+1;j<sizeof(buf);i++,j++)
+		{
+			if(strstr(buf,"> ")!=NULL)
+				strcpy((temp+i),(buf+j+1));
+			else if(strstr(buf,">")!=NULL)
+				strcpy((temp+i),(buf+j));
+		}
+		
+		if((p=strstr(temp,"<")) != NULL)
+		{
+			t=(p-temp)/sizeof(char);
+			for(i=0;i<t;i++)
+			{
+				strcpy((temp1+i),(temp+i));
+			}
+			strcpy((temp1+t)," ");
+			strcpy((temp1+t+1),(temp+t));
+			//strcpy((temp1+t+2)," ");
+			for(i=t+2,j=t+1;j<sizeof(temp);i++,j++)
+			{
+				if(strstr(buf,"< ")!=NULL)
+					strcpy((temp1+i),(temp+j+1));
+				else if(strstr(buf,"<")!=NULL)
+					strcpy((temp1+i),(temp+j));
+			}
+			strcpy(cmd,temp1);
+		}
+		else
+		{
+			strcpy(cmd,temp);
+		}
+	}	
+	else
+	{
+		if((p=strstr(buf,"<")) != NULL)
+		{
+			t=(p-buf)/sizeof(char);
+			for(i=0;i<t;i++)
+			{
+				strcpy((temp+i),(buf+i));
+			}
+			strcpy((temp+t)," ");
+			strcpy((temp+t+1),(buf+t));
+			//strcpy((temp+t+2)," ");
+			for(i=t+2,j=t+1;j<sizeof(buf);i++,j++)
+			{
+				if(strstr(buf,"< ")!=NULL)
+					strcpy((temp+i),(buf+j+1));
+				else if(strstr(buf,"<")!=NULL)
+					strcpy((temp+i),(buf+j));
+			}
+			strcpy(cmd,temp);
+		}
+	}
+	return cmd;
+}
+
+
+int main(int argc, char *argv[])
+{
+memset(cmdbuf,LEN,0);
+	fgets(cmdbuf,LEN,stdin); /*获取命令行所有参数*/
+	cmdbuf[strlen(cmdbuf)-1]='\0';
+    char buff[LEN];
+    strcpy(buff, addBlank(cmdbuf));
+    printf("%s\n", buff);	
+    return 0;
+}

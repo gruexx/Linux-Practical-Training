@@ -1,0 +1,66 @@
+//=========================================================================
+// 文件名：	cut.c
+// 文件功能：	测试cut和cut_pipe函数的功能
+// 函数功能：	cut_pipe函数根据管道符切分命令,并存放到*cmdtemp1[MAX]
+//		cut函数根据空格切分命令,并存放到*cmdtemp2[MAX]
+// 语法格式：	void cut_pipe(char line[])
+//		void cut(char cmdbuf[])
+//=============================================================
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <stdbool.h>
+#include <sys/wait.h>
+
+#define MAX 100
+#define LEN 100
+
+char cmdbuf[LEN];     //接收命令数组
+int num;            //管道分割的命令个数
+char cmdtemp[MAX];
+char* cmdtemp2[MAX];
+char* cmdtemp1[MAX];
+
+//根据管道符切分命令,并存放到*cmdtemp1[MAX]
+void cut_pipe(char line[])
+{
+    char *save;
+    char * cmd = strtok_r(line, "|", &save);
+    while (cmd) {
+        cmdtemp1[num]=cmd;
+        num++;  
+        cmd = strtok_r(NULL, "|", &save);
+    }
+    cmdtemp1[num] = NULL;
+    printf("%d\n", num);
+}
+
+//根据空格切分命令,并存放到*cmdtemp2[MAX]
+void cut(char cmdbuf[])
+{
+    char *save;
+    char *arg = strtok_r(cmdbuf, " ", &save);
+    int i=0;
+    while (arg) {
+    cmdtemp2[i] = arg;
+    i++;//记录命令个数
+    arg = strtok_r(NULL, " ", &save);
+    }
+    cmdtemp2[i] = NULL;
+}
+
+int main(void)
+{
+    int in=0;  
+    char buffer[50]="Fred male 25|John male 62|Anna female 16";  
+    cut_pipe(buffer);
+    strcpy(cmdtemp,cmdtemp1[0]);
+    cut(cmdtemp);
+    printf("%s\n%s\n", cmdtemp1[1], cmdtemp2[1]);
+}
+
